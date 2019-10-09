@@ -3,6 +3,6 @@
 # MEMORY_REQUEST=
 # MEMORY_LIMIT=
 APP_NAME=frontend-client
-GAME_ROOM_REMOTE_ADDR="http://game-room-dino-dash-non-prod.apps.pjud-f4b5.open.redhat.com"
-WAITING_ROOM_REMOTE_ADDR="http://waiting-room-dino-dash-non-prod.apps.pjud-f4b5.open.redhat.com" 
+GAME_ROOM_REMOTE_ADDR="http://game-room-dino-dash-non-prod.apps.na311.openshift.opentlc.com"
+WAITING_ROOM_REMOTE_ADDR="http://waiting-room-dino-dash-non-prod.apps.na311.openshift.opentlc.com" 
 PIPELINES_NAMESPACE=dino-dash-non-prod
