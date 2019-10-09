@@ -1,0 +1,78 @@
+---
+openshift_cluster_content:
+- object: base
+  content:
+    - name: non-prod
+      template: "{{ inventory_dir }}/../templates/project/project-request-template.yml"
+      params: "{{ inventory_dir }}/../params/project/{{ non_prod_namespace }}"
+      action: create
+      tags:
+      - project-request
+      - base
+    - name: prod
+      template: "{{ inventory_dir }}/../templates/project/project-request-template.yml"
+      params: "{{ inventory_dir }}/../params/project/{{ prod_namespace }}"
+      action: create
+      tags:
+      - project-request
+      - base
+- object: build
+  content:
+    - name: secret
+      template: "{{ inventory_dir }}/../templates/frontend-client/git-secret-template.yml"
+      params_from_vars:
+        SECRET_NAME: git-auth
+        USERNAME: "{{ encrypted_password | b64encode }}"
+        PASSWORD: "{{ encrypted_password | b64encode }}"
+      namespace: "{{ non_prod_namespace }}"
+      tags:
+      - frontend-client
+      - secret
+      - build
+    - name: pipeline-cd
+      template: "{{ inventory_dir }}/../templates/frontend-client/pipeline-template.yml"
+      params: "{{ inventory_dir }}/../params/frontend-client/pipeline-cd"
+      namespace: "{{ non_prod_namespace }}"
+      tags:
+      - frontend-client
+      - pipeline-cd
+      - build
+    - name: unique-build
+      template: "{{ inventory_dir }}/../templates/frontend-client/build-source-template.yml"
+      params: "{{ inventory_dir }}/../params/frontend-client/build"
+      namespace: "{{ non_prod_namespace }}"
+      tags:
+      - frontend-client
+      - unique-build
+      - build
+
+- object: deploy-non-prod
+  content:
+    - name: service
+      template: "{{ inventory_dir }}/../templates/frontend-client/deploy-template.yml"
+      params: "{{ inventory_dir }}/../params/frontend-client/deploy-non-prod"
+      namespace: "{{ non_prod_namespace }}"
+      tags:
+      - frontend-client
+      - service
+      - non-prod
+- object: deploy-prod
+  content:
+    - name: service-blue
+      template: "{{ inventory_dir }}/../templates/frontend-client/deploy-bg-template.yml"
+      params: "{{ inventory_dir }}/../params/frontend-client/deploy-prod-blue"
+      namespace: "{{ prod_namespace }}"
+      tags:
+      - frontend-client
+      - blue
+      - service
+      - prod
+    - name: service-green
+      template: "{{ inventory_dir }}/../templates/frontend-client/deploy-bg-template.yml"
+      params: "{{ inventory_dir }}/../params/frontend-client/deploy-prod-green"
+      namespace: "{{ prod_namespace }}"
+      tags:
+      - frontend-client
+      - green
+      - service
+      - prod

@@ -1,0 +1,5 @@
+APP_NAME=frontend-client-cd
+GIT_URL=https://github.com/cnad-io/ddash-frontend.git
+GIT_BRANCH=master
+# GIT_CONTEXT_DIR=
+SOURCE_SECRET=git-auth

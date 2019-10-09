@@ -1,0 +1,7 @@
+# CPU_REQUEST=
+# CPU_LIMIT=
+# MEMORY_REQUEST=
+# MEMORY_LIMIT=
+APP_NAME=frontend-client
+PIPELINES_NAMESPACE=dino-dash-non-prod
+DEPLOYMENT_MODE=green
