@@ -152,14 +152,28 @@ pipeline {
 
         sh 'oc scale --replicas=1 dc ${APP_NAME}-${NOT_ACTIVE_MODE} -n ${PROD_NAMESPACE}'
         echo '### Verify OCP Deployment ###'
-        openshiftVerifyDeployment depCfg: "${APP_NAME}-${NOT_ACTIVE_MODE}",
-          namespace: env.PROD_NAMESPACE,
-          replicaCount: '1',
-          verbose: 'false',
-          verifyReplicaCount: 'true',
-          waitTime: '',
-          waitUnit: 'sec'
-
+        //openshiftVerifyDeployment depCfg: "${APP_NAME}-${NOT_ACTIVE_MODE}",
+        //  namespace: env.PROD_NAMESPACE,
+        //  replicaCount: '1',
+        //  verbose: 'false',
+        //  verifyReplicaCount: 'true',
+        //  waitTime: '',
+        //  waitUnit: 'sec'
+          script {
+            openshift.withCluster() {
+              openshift.withProject(env.PROD_NAMESPACE) {
+                  //openshift.selector("dc", env.APP_NAME).rollout().latest()
+                  def latestDeploymentVersion = openshift.selector('dc',"${APP_NAME}-${NOT_ACTIVE_MODE}").object().status.latestVersion
+                  def rc = openshift.selector('rc', "${APP_NAME}-${NOT_ACTIVE_MODE}-${latestDeploymentVersion}")
+                  timeout (time: 10, unit: 'MINUTES') {
+                      rc.untilEach(1){
+                          def rcMap = it.object()
+                          return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+                      }
+                  }
+              }
+            }
+          }
         echo '### Change balance configuration ###'
         sh '''
           oc set route-backends ${APP_NAME} ${APP_NAME}-${ACTIVE_MODE}=0% ${APP_NAME}-${NOT_ACTIVE_MODE}=100% -n ${PROD_NAMESPACE}
