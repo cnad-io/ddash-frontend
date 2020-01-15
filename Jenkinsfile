@@ -68,13 +68,26 @@ pipeline {
           } catch (error) {}
         }
         echo 'Verify OCP deployment'
-        openshiftVerifyDeployment depCfg: env.APP_NAME,
-          namespace: env.NON_PROD_NAMESPACE,
-          replicaCount: '1',
-          verbose: 'false',
-          verifyReplicaCount: 'true',
-          waitTime: '',
-          waitUnit: 'sec'
+        //openshiftVerifyDeployment depCfg: env.APP_NAME,
+        //  namespace: env.NON_PROD_NAMESPACE,
+        //  replicaCount: '1',
+        //  verbose: 'false',
+        //  verifyReplicaCount: 'true',
+        //  waitTime: '',
+        //  waitUnit: 'sec'
+        openshift.withCluster() {
+          openshift.withProject(env.NON_PROD_NAMESPACE) {
+              //openshift.selector("dc", env.APP_NAME).rollout().latest()
+              def latestDeploymentVersion = openshift.selector('dc',"${APP_NAME}").object().status.latestVersion
+              def rc = openshift.selector('rc', "${APP_NAME}-${latestDeploymentVersion}")
+              timeout (time: 10, unit: 'MINUTES') {
+                  rc.untilEach(1){
+                      def rcMap = it.object()
+                      return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+                  }
+              }
+          }
+        }
       }
     }
         stage("Prepare B/G Deploy") {
@@ -143,7 +156,7 @@ pipeline {
           verbose: 'false',
           verifyReplicaCount: 'true',
           waitTime: '',
-          waitUnit: 'sec' 
+          waitUnit: 'sec'
 
         echo '### Change balance configuration ###'
         sh '''
