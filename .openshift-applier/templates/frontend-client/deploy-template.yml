@@ -95,7 +95,7 @@ objects:
           kind: php
       spec:
         containers:
-        - env: 
+        - env:
             - name: "GAME_ROOM_REMOTE_ADDR"
               value: "${GAME_ROOM_REMOTE_ADDR}"
             - name: "WAITING_ROOM_REMOTE_ADDR"
@@ -146,10 +146,10 @@ parameters:
   value: 100m
 - name: MEMORY_REQUEST
   required: true
-  value: 100Mi
+  value: 50Mi
 - name: MEMORY_LIMIT
   required: true
-  value: 200Mi
+  value: 100Mi
 - name: APP_NAME
   required: true
   value: frontend-client
@@ -163,4 +163,4 @@ parameters:
   value: ""
 - name: "WAITING_ROOM_REMOTE_ADDR"
   required: true
-  value: "" 
+  value: ""
